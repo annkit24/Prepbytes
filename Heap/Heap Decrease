@@ -1,0 +1,126 @@
+//https://www.prepbytes.com/blog/miscellaneous/remove-kth-element-from-min-heap/
+/*
+Method 2(Using Heap) :
+In a min-heap, the root always stores the smaller value as compared to its left & right subtree, this condition needs to be true for every node. We need to insert each item one by one such that it's parent is always smaller than the item itself. If the parent is greater then we need to swap the current item with its parent.
+
+In the deletion process, we can only delete any item if it is the root. So, first we need to take the item (to be deleted), in the root's position then extract it (remove) using decreaseKey() and store the last item of the heap in the root and reduce the size of our heap by 1.
+
+Since, now the last item is stored in the root's place this might void the heap property. So, we need to heapify the last node placed at the position of root.
+
+Below is the algorithm of above approach.
+
+Algorithms :
+Insert() :
+Insert the item at the last index, and increment the size by 1.
+Then, check if the inserted item is smaller than its parent,
+If yes, then swap the inserted item with its parent.
+If no, then do nothing.
+Now, go to step 2 and repeat untill we reach root (first element).
+decreaseKey():
+Take the index of the element to be removed.
+Assign the least possible value in the index position.
+Swap the value at this index untill it takes root's position.
+extract() it and call heapify() since we just removed a node and this might void the heap property.
+Extract() :
+Store the value of the first node of our heap ( temp = heap[0] ).
+Replace the root node with the farthest right node (last element). (heap[0] = heap[size-1])
+Decrease the size by 1.
+Perform heapify starting from the new root.
+Return the stored value (temp).
+Heapify():
+if the heap property holds true then you are done.
+else if
+the replacement node value > then swap them, and repeat step 3.
+else
+swap the replacement node with the smallest child node, and
+repeat step 3.
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+void swap(int *a,int *b)
+{
+int temp = *a;
+*a = *b;
+*b = temp;
+}
+int parent(int i)
+{
+    return (i/2);
+}   
+int left(int i)
+{
+    return (i*2);
+}
+int right(int i)
+{
+return (i*2)+1;
+}
+void insert(int heap[],int *size,int val)
+{
+    int i = (*size);
+    *size +=1;
+    heap[i] = val;
+    while(i!=1 && heap[parent(i)]>heap[i])
+    {
+        swap(&heap[parent(i)],&heap[i]);
+        i = parent(i);
+    }
+}
+int extract(int heap[],int *size)
+{
+    int root = heap[1];
+    heap[1] = heap[(*size)-1];
+    (*size)--;
+    return root;
+}
+void heapify(int heap[],int i,int size)
+{
+    int l = left(i);
+    int r = right(i);
+    int s = i;
+    if(l<size && heap[l]< heap[i])
+        s = l;
+    if(r<size && heap[r]< heap[s])
+        s = r;
+    if(s!=i)
+    {
+        swap(&heap[i],&heap[s]);
+        heapify(heap,s,size);
+    }
+}
+void decreaseKey(int heap[],int i,int *size)
+{
+    heap[i] = INT_MIN;
+    while(i!=1 && heap[parent(i)]>heap[i])
+    {
+        swap(&heap[parent(i)],&heap[i]);
+        i = parent(i);
+    }
+    extract(heap,size);
+    heapify(heap,1,*size);
+}
+int main()
+{
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int n,k;
+        int size = 1;
+        cin>>n>>k;
+
+        int *heap =(int*) malloc(sizeof(int)*(n+1));
+        int a[n];
+        for(int i = 0;i<n;i++)
+        {
+            cin>>a[i];
+            insert(heap,&size,a[i]);
+        }
+        decreaseKey(heap,k,&size);
+        for(int i=1;i<size;i++)
+            cout<<heap[i]<<" ";
+        cout<<endl;  
+    }
+    return 0;
+}
